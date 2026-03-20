@@ -11,8 +11,8 @@
 	<groupId>com.securedoc</groupId>
 	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>secure-doc-backend</name>
+	<description>Secure Document Sharing Platform — Spring Boot REST API</description>
 	<url/>
 	<licenses>
 		<license/>
