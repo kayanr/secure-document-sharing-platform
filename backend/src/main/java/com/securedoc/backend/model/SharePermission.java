@@ -16,6 +16,10 @@ public class SharePermission {
     private Document document;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "shared_by_user_id")
+    private User sharedBy;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "shared_with_user_id")
     private User sharedWith;
 
@@ -34,6 +38,9 @@ public class SharePermission {
 
     public Document getDocument() { return document; }
     public void setDocument(Document document) { this.document = document; }
+
+    public User getSharedBy() { return sharedBy; }
+    public void setSharedBy(User sharedBy) { this.sharedBy = sharedBy; }
 
     public User getSharedWith() { return sharedWith; }
     public void setSharedWith(User sharedWith) { this.sharedWith = sharedWith; }
