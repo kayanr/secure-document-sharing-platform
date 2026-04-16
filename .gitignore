@@ -27,6 +27,9 @@ replay_pid*
 .env
 backend/.env
 
+# Uploaded files
+backend/uploads/
+
 # Frontend
 frontend/node_modules
 frontend/dist
