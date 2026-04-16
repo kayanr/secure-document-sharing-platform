@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +18,7 @@ function LoginPage() {
 
     try {
       const token = await login(email, password);
-      localStorage.setItem('token', token);
+      authLogin(token);
       navigate('/documents');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');

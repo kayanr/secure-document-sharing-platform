@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -9,6 +10,7 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ function RegisterPage() {
 
     try {
       const token = await register(fullName, email, password);
-      localStorage.setItem('token', token);
+      authLogin(token);
       navigate('/documents');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
