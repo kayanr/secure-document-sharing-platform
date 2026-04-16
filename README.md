@@ -37,6 +37,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Phase 3 | JWT Authentication | ✅ Complete |
 | Phase 4 | Document CRUD | ✅ Complete |
 | Phase 5 | Role-Based Access Control | ✅ Complete |
+| Frontend | Auth, documents, admin dashboard | ✅ Complete |
 | Phase 6 | Document Sharing | 🔲 Not started |
 
 ---
@@ -45,6 +46,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 
 ### Prerequisites
 - Java 21
+- Node.js 18+
 - Docker (for MySQL)
 
 ### 1. Start the database
@@ -73,6 +75,15 @@ cd backend
 
 Backend starts at `http://localhost:8080`.
 Swagger UI available at `http://localhost:8080/swagger-ui/index.html`.
+
+### 4. Run the frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend starts at `http://localhost:5173`.
 
 ---
 
@@ -159,4 +170,4 @@ curl -s -o /dev/null -w "%{http_code}" -X DELETE \
 Response: `204 No Content`
 
 > USER role accessing admin endpoints returns `403 Forbidden`.
-> To promote a user to ADMIN: `UPDATE users SET role = 'ADMIN' WHERE email = 'user@example.com';`
+> To promote a user to ADMIN: `UPDATE users SET role = 'ROLE_ADMIN' WHERE email = 'user@example.com';`
