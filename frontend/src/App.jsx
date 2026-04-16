@@ -1,9 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
     <Routes>
-      {/* Routes will be added here as we build each page */}
+      <Route path="/login" element={<LoginPage />} />
     </Routes>
   );
 }
