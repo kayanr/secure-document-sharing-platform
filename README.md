@@ -35,7 +35,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Phase | Feature | Status |
 |---|---|---|
 | Phase 3 | JWT Authentication | ✅ Complete |
-| Phase 4 | Document CRUD | 🔲 Not started |
+| Phase 4 | Document CRUD | ✅ Complete |
 | Phase 5 | Role-Based Access Control | 🔲 Not started |
 | Phase 6 | Document Sharing | 🔲 Not started |
 
@@ -99,6 +99,43 @@ Response: `200 OK` — `{"token": "eyJ..."}`
 ### All other endpoints (protected)
 Include the token from login in every request:
 ```bash
-curl -s -H "Authorization: Bearer eyJ..." http://localhost:8080/api/documents
+TOKEN="eyJ..."
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/documents
 ```
 Returns `401` if token is missing or invalid.
+
+---
+
+### Documents (protected)
+
+**Upload a document**
+```bash
+curl -s -X POST http://localhost:8080/api/documents \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@/path/to/your/file.pdf"
+```
+Response: `201 Created` — document metadata JSON
+
+**List your documents**
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/documents
+```
+Response: `200 OK` — array of document metadata
+
+**Download a document**
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/documents/{id}/download \
+  -o downloaded-file.pdf
+```
+Response: `200 OK` — file bytes
+
+**Delete a document**
+```bash
+curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+  -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/documents/{id}
+```
+Response: `204 No Content`
+
+> Only the document owner can download or delete. Non-owner access returns `403 Forbidden`.
