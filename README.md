@@ -36,7 +36,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 |---|---|---|
 | Phase 3 | JWT Authentication | ✅ Complete |
 | Phase 4 | Document CRUD | ✅ Complete |
-| Phase 5 | Role-Based Access Control | 🔲 Not started |
+| Phase 5 | Role-Based Access Control | ✅ Complete |
 | Phase 6 | Document Sharing | 🔲 Not started |
 
 ---
@@ -139,3 +139,24 @@ curl -s -o /dev/null -w "%{http_code}" -X DELETE \
 Response: `204 No Content`
 
 > Only the document owner can download or delete. Non-owner access returns `403 Forbidden`.
+
+---
+
+### Admin endpoints (ADMIN role only)
+
+**List all documents on the platform**
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/admin/documents
+```
+Response: `200 OK` — array of all documents regardless of owner
+
+**Delete any document**
+```bash
+curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+  -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/admin/documents/{id}
+```
+Response: `204 No Content`
+
+> USER role accessing admin endpoints returns `403 Forbidden`.
+> To promote a user to ADMIN: `UPDATE users SET role = 'ADMIN' WHERE email = 'user@example.com';`
