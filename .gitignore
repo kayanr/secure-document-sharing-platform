@@ -26,6 +26,8 @@ replay_pid*
 # Environment variables
 .env
 backend/.env
+frontend/.env
+frontend/.env.local
 
 # Uploaded files
 backend/uploads/
