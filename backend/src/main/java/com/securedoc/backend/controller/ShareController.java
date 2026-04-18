@@ -1,6 +1,7 @@
 package com.securedoc.backend.controller;
 
 import com.securedoc.backend.dto.DocumentDTO;
+import com.securedoc.backend.dto.ShareInfoDTO;
 import com.securedoc.backend.dto.ShareRequestDTO;
 import com.securedoc.backend.service.SharePermissionService;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,13 @@ public class ShareController {
                                       Principal principal) {
         sharePermissionService.share(id, request.getRecipientEmail(), principal.getName());
         return ResponseEntity.status(201).build();
+    }
+
+    // List all users a document is shared with — owner only
+    @GetMapping("/{id}/shares")
+    public ResponseEntity<List<ShareInfoDTO>> listShares(@PathVariable Long id,
+                                                         Principal principal) {
+        return ResponseEntity.ok(sharePermissionService.listShares(id, principal.getName()));
     }
 
     // List all documents shared with the logged-in user
