@@ -42,7 +42,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Frontend | Share modal, Shared With Me page | ✅ Complete |
 | Follow-up | Shares list endpoint (`GET /api/documents/{id}/shares`) | ✅ Complete |
 | Follow-up | Revoke UI in share modal | ✅ Complete |
-| Next | Automated tests | 🔲 Pending |
+| — | Automated tests (unit, integration, component, E2E) | ✅ Complete |
 
 ---
 
