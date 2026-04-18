@@ -4,6 +4,7 @@ import com.securedoc.backend.dto.DocumentDTO;
 import com.securedoc.backend.model.Document;
 import com.securedoc.backend.model.User;
 import com.securedoc.backend.repository.DocumentRepository;
+import com.securedoc.backend.repository.SharePermissionRepository;
 import com.securedoc.backend.repository.UserRepository;
 import com.securedoc.backend.storage.StorageService;
 import org.springframework.core.io.Resource;
@@ -12,23 +13,40 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class DocumentService {
 
+    private static final Set<String> ALLOWED_TYPES = Set.of(
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain",
+            "image/jpeg",
+            "image/png"
+    );
+
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final StorageService storageService;
+    private final SharePermissionRepository sharePermissionRepository;
 
     public DocumentService(DocumentRepository documentRepository,
                            UserRepository userRepository,
-                           StorageService storageService) {
+                           StorageService storageService,
+                           SharePermissionRepository sharePermissionRepository) {
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
+        this.sharePermissionRepository = sharePermissionRepository;
     }
 
     public DocumentDTO upload(MultipartFile file, String email) {
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            throw new IllegalArgumentException(
+                    "File type not allowed. Accepted types: PDF, DOCX, TXT, JPG, PNG");
+        }
+
         User owner = getUser(email);
 
         String storedFilename = storageService.store(file);
@@ -53,7 +71,17 @@ public class DocumentService {
     }
 
     public Resource download(Long id, String email) {
-        Document document = getOwnedDocument(id, email);
+        User user = getUser(email);
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+
+        boolean isOwner = document.getOwner().getEmail().equals(email);
+        boolean isRecipient = sharePermissionRepository.existsByDocumentAndSharedWith(document, user);
+
+        if (!isOwner && !isRecipient) {
+            throw new SecurityException("Access denied");
+        }
+
         return storageService.load(document.getFilePath());
     }
 
