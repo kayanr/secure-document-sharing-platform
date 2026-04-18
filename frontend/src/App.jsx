@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage';
 import DocumentsPage from './pages/DocumentsPage';
 import UploadPage from './pages/UploadPage';
 import AdminPage from './pages/AdminPage';
+import SharedWithMePage from './pages/SharedWithMePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 
@@ -34,6 +35,14 @@ function App() {
           <AdminRoute>
             <AdminPage />
           </AdminRoute>
+        }
+      />
+      <Route
+        path="/shared-with-me"
+        element={
+          <ProtectedRoute>
+            <SharedWithMePage />
+          </ProtectedRoute>
         }
       />
     </Routes>
