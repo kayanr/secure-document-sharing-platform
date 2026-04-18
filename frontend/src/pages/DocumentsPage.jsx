@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDocuments, deleteDocument } from '../services/documentService';
-import { shareDocument } from '../services/shareService';
+import { shareDocument, getShares, revokeShare } from '../services/shareService';
 import { useAuth } from '../context/AuthContext';
 
 function DocumentsPage() {
@@ -15,6 +15,9 @@ function DocumentsPage() {
   const [shareError, setShareError] = useState('');
   const [shareSuccess, setShareSuccess] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
+  const [shares, setShares] = useState([]);
+  const [sharesLoading, setSharesLoading] = useState(false);
+  const [revokeError, setRevokeError] = useState('');
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -44,11 +47,22 @@ function DocumentsPage() {
     }
   };
 
-  const openShareModal = (docId) => {
+  const openShareModal = async (docId) => {
     setShareDocId(docId);
     setRecipientEmail('');
     setShareError('');
     setShareSuccess('');
+    setRevokeError('');
+    setShares([]);
+    setSharesLoading(true);
+    try {
+      const data = await getShares(docId);
+      setShares(data);
+    } catch (err) {
+      // non-fatal — modal still opens, revoke list just won't show
+    } finally {
+      setSharesLoading(false);
+    }
   };
 
   const closeShareModal = () => {
@@ -56,6 +70,18 @@ function DocumentsPage() {
     setRecipientEmail('');
     setShareError('');
     setShareSuccess('');
+    setShares([]);
+    setRevokeError('');
+  };
+
+  const handleRevoke = async (recipientId) => {
+    setRevokeError('');
+    try {
+      await revokeShare(shareDocId, recipientId);
+      setShares((prev) => prev.filter((s) => s.userId !== recipientId));
+    } catch (err) {
+      setRevokeError(err.response?.data?.error || 'Failed to revoke share.');
+    }
   };
 
   const handleShare = async (e) => {
@@ -138,6 +164,27 @@ function DocumentsPage() {
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <h3 style={styles.modalTitle}>Share Document</h3>
+
+            {/* Current recipients */}
+            {sharesLoading && <p style={styles.modalMeta}>Loading...</p>}
+            {!sharesLoading && shares.length > 0 && (
+              <div style={styles.sharesList}>
+                <p style={styles.sharesLabel}>Shared with</p>
+                {shares.map((s) => (
+                  <div key={s.userId} style={styles.shareRow}>
+                    <span style={styles.shareEmail}>{s.email}</span>
+                    <button
+                      onClick={() => handleRevoke(s.userId)}
+                      style={styles.revokeButton}
+                    >
+                      Revoke
+                    </button>
+                  </div>
+                ))}
+                {revokeError && <p style={styles.modalError}>{revokeError}</p>}
+              </div>
+            )}
+
             <form onSubmit={handleShare}>
               <input
                 type="email"
@@ -333,6 +380,43 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.9rem',
+  },
+  sharesList: {
+    marginBottom: '1.25rem',
+    borderBottom: '1px solid #e5e7eb',
+    paddingBottom: '1rem',
+  },
+  sharesLabel: {
+    margin: '0 0 0.5rem',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  shareRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.35rem 0',
+  },
+  shareEmail: {
+    fontSize: '0.9rem',
+    color: '#374151',
+  },
+  revokeButton: {
+    padding: '0.25rem 0.65rem',
+    backgroundColor: 'transparent',
+    border: '1px solid #dc2626',
+    color: '#dc2626',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+  },
+  modalMeta: {
+    fontSize: '0.85rem',
+    color: '#9ca3af',
+    marginBottom: '1rem',
   },
 };
 
