@@ -19,7 +19,7 @@ function DocumentsPage() {
   const [sharesLoading, setSharesLoading] = useState(false);
   const [revokeError, setRevokeError] = useState('');
 
-  const { logout } = useAuth();
+  const { logout, currentUserEmail } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -110,6 +110,7 @@ function DocumentsPage() {
       <div style={styles.header}>
         <h1 style={styles.title}>SecureDoc</h1>
         <div style={styles.nav}>
+          {currentUserEmail && <span style={styles.userEmail}>{currentUserEmail}</span>}
           <button onClick={() => navigate('/shared-with-me')} style={styles.navButton}>
             Shared With Me
           </button>
@@ -257,6 +258,11 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.9rem',
+  },
+  userEmail: {
+    fontSize: '0.85rem',
+    color: '#555',
+    alignSelf: 'center',
   },
   logoutButton: {
     padding: '0.5rem 1rem',

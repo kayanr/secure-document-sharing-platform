@@ -43,6 +43,7 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Follow-up | Shares list endpoint (`GET /api/documents/{id}/shares`) | ✅ Complete |
 | Follow-up | Revoke UI in share modal | ✅ Complete |
 | — | Automated tests (unit, integration, component, E2E) | ✅ Complete |
+| — | Polish — seed script, Swagger auth, download button, file type validation | ✅ Complete |
 
 ---
 

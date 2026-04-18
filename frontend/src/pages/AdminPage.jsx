@@ -7,7 +7,7 @@ function AdminPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { logout } = useAuth();
+  const { logout, currentUserEmail } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +45,7 @@ function AdminPage() {
       <div style={styles.header}>
         <h1 style={styles.title}>SecureDoc — Admin</h1>
         <div style={styles.nav}>
+          {currentUserEmail && <span style={styles.userEmail}>{currentUserEmail}</span>}
           <button onClick={() => navigate('/documents')} style={styles.navButton}>
             My Documents
           </button>
@@ -116,6 +117,11 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.9rem',
+  },
+  userEmail: {
+    fontSize: '0.85rem',
+    color: '#ccc',
+    alignSelf: 'center',
   },
   logoutButton: {
     padding: '0.5rem 1rem',
