@@ -9,6 +9,11 @@ export const getSharedWithMe = async () => {
   return response.data;
 };
 
+export const getShares = async (documentId) => {
+  const response = await api.get(`/api/documents/${documentId}/shares`);
+  return response.data;
+};
+
 export const revokeShare = async (documentId, recipientId) => {
   await api.delete(`/api/documents/${documentId}/share/${recipientId}`);
 };
