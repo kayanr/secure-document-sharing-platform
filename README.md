@@ -40,6 +40,8 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Frontend | Auth, documents, admin dashboard | ✅ Complete |
 | Phase 6 | Document Sharing — backend API | ✅ Complete |
 | Frontend | Share modal, Shared With Me page | ✅ Complete |
+| Follow-up | Shares list endpoint (`GET /api/documents/{id}/shares`) | ✅ Complete |
+| Follow-up | Revoke UI in share modal | ✅ Complete |
 | Next | Automated tests | 🔲 Pending |
 
 ---
@@ -196,6 +198,15 @@ curl -s -H "Authorization: Bearer $TOKEN" \
   http://localhost:8080/api/documents/shared-with-me
 ```
 Response: `200 OK` — array of document metadata shared with the logged-in user
+
+**List who a document is shared with (owner only)**
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/documents/{id}/shares
+```
+Response: `200 OK` — array of `{userId, email, sharedAt}` for each recipient
+
+> Returns `403` if you are not the document owner.
 
 **Revoke a share**
 ```bash
