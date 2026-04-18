@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { getSharedWithMe } from '../services/shareService';
 import { downloadDocument } from '../services/documentService';
 import { useAuth } from '../context/AuthContext';
+import Header from '../components/Header';
+import UserAvatar from '../components/UserAvatar';
+import FileIcon from '../components/FileIcon';
 
 function SharedWithMePage() {
   const [documents, setDocuments] = useState([]);
@@ -33,18 +36,15 @@ function SharedWithMePage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>SecureDoc</h1>
-        <div style={styles.nav}>
-          {currentUserEmail && <span style={styles.userEmail}>{currentUserEmail}</span>}
-          <button onClick={() => navigate('/documents')} style={styles.navButton}>
-            My Documents
-          </button>
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
-        </div>
-      </div>
+      <Header>
+        <UserAvatar email={currentUserEmail} />
+        <button onClick={() => navigate('/documents')} style={styles.navButton}>
+          My Documents
+        </button>
+        <button onClick={handleLogout} style={styles.logoutButton}>
+          Logout
+        </button>
+      </Header>
 
       <div style={styles.content}>
         <h2>Shared With Me</h2>
@@ -58,13 +58,16 @@ function SharedWithMePage() {
 
         {documents.map((doc) => (
           <div key={doc.id} style={styles.card}>
-            <div>
-              <p style={styles.filename}>{doc.originalFilename}</p>
-              <p style={styles.meta}>
-                Shared by: {doc.ownerEmail} &nbsp;•&nbsp;
-                {(doc.fileSize / 1024).toFixed(1)} KB &nbsp;•&nbsp;
-                {new Date(doc.uploadedAt).toLocaleDateString()}
-              </p>
+            <div style={styles.cardLeft}>
+              <FileIcon filename={doc.originalFilename} />
+              <div>
+                <p style={styles.filename}>{doc.originalFilename}</p>
+                <p style={styles.meta}>
+                  Shared by: {doc.ownerEmail} &nbsp;•&nbsp;
+                  {(doc.fileSize / 1024).toFixed(1)} KB &nbsp;•&nbsp;
+                  {new Date(doc.uploadedAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => downloadDocument(doc.id, doc.originalFilename)}
@@ -84,21 +87,6 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#f3f4f6',
   },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem 2rem',
-    backgroundColor: '#fff',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-  },
-  title: {
-    margin: 0,
-  },
-  nav: {
-    display: 'flex',
-    gap: '0.75rem',
-  },
   navButton: {
     padding: '0.5rem 1rem',
     backgroundColor: 'transparent',
@@ -107,11 +95,6 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.9rem',
-  },
-  userEmail: {
-    fontSize: '0.85rem',
-    color: '#555',
-    alignSelf: 'center',
   },
   logoutButton: {
     padding: '0.5rem 1rem',
@@ -136,6 +119,11 @@ const styles = {
     boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
     marginTop: '1rem',
   },
+  cardLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
   filename: {
     margin: 0,
     fontWeight: '500',
@@ -143,13 +131,13 @@ const styles = {
   meta: {
     margin: '0.25rem 0 0',
     fontSize: '0.8rem',
-    color: '#888',
+    color: '#6b7280',
   },
   error: {
     color: '#dc2626',
   },
   empty: {
-    color: '#888',
+    color: '#6b7280',
     marginTop: '1rem',
   },
   downloadButton: {

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import Header from '../components/Header';
+import UserAvatar from '../components/UserAvatar';
 
 function AdminPage() {
   const [documents, setDocuments] = useState([]);
@@ -42,18 +44,15 @@ function AdminPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>SecureDoc — Admin</h1>
-        <div style={styles.nav}>
-          {currentUserEmail && <span style={styles.userEmail}>{currentUserEmail}</span>}
-          <button onClick={() => navigate('/documents')} style={styles.navButton}>
-            My Documents
-          </button>
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
-        </div>
-      </div>
+      <Header title="SecureDoc — Admin" dark>
+        <UserAvatar email={currentUserEmail} dark />
+        <button onClick={() => navigate('/documents')} style={styles.navButton}>
+          My Documents
+        </button>
+        <button onClick={handleLogout} style={styles.logoutButton}>
+          Logout
+        </button>
+      </Header>
 
       <div style={styles.content}>
         <h2>All Documents</h2>
@@ -93,22 +92,6 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#f3f4f6',
   },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem 2rem',
-    backgroundColor: '#1e1e2e',
-    color: '#fff',
-  },
-  title: {
-    margin: 0,
-    color: '#fff',
-  },
-  nav: {
-    display: 'flex',
-    gap: '0.75rem',
-  },
   navButton: {
     padding: '0.5rem 1rem',
     backgroundColor: 'transparent',
@@ -117,11 +100,6 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.9rem',
-  },
-  userEmail: {
-    fontSize: '0.85rem',
-    color: '#ccc',
-    alignSelf: 'center',
   },
   logoutButton: {
     padding: '0.5rem 1rem',
@@ -154,7 +132,7 @@ const styles = {
   meta: {
     margin: '0.25rem 0 0',
     fontSize: '0.8rem',
-    color: '#888',
+    color: '#6b7280',
   },
   deleteButton: {
     padding: '0.4rem 0.9rem',
@@ -169,7 +147,7 @@ const styles = {
     color: '#dc2626',
   },
   empty: {
-    color: '#888',
+    color: '#6b7280',
     marginTop: '1rem',
   },
 };

@@ -109,3 +109,8 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadDocument } from '../services/documentService';
+import Header from '../components/Header';
 
 function UploadPage() {
   const [file, setFile] = useState(null);
@@ -46,9 +47,11 @@ function UploadPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>SecureDoc</h1>
-      </div>
+      <Header>
+        <button onClick={() => navigate('/documents')} style={styles.navButton}>
+          My Documents
+        </button>
+      </Header>
 
       <div style={styles.content}>
         <h2>Upload Document</h2>
@@ -98,13 +101,14 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#f3f4f6',
   },
-  header: {
-    padding: '1rem 2rem',
-    backgroundColor: '#fff',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-  },
-  title: {
-    margin: 0,
+  navButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: 'transparent',
+    border: '1px solid #2563eb',
+    color: '#2563eb',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
   },
   content: {
     maxWidth: '500px',
