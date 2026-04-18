@@ -38,7 +38,9 @@ The backend follows a layered pattern: Controllers handle HTTP, Services contain
 | Phase 4 | Document CRUD | ✅ Complete |
 | Phase 5 | Role-Based Access Control | ✅ Complete |
 | Frontend | Auth, documents, admin dashboard | ✅ Complete |
-| Phase 6 | Document Sharing | 🔲 Not started |
+| Phase 6 | Document Sharing — backend API | ✅ Complete |
+| Frontend | Share modal, Shared With Me page | ✅ Complete |
+| Next | Automated tests | 🔲 Pending |
 
 ---
 
@@ -171,3 +173,36 @@ Response: `204 No Content`
 
 > USER role accessing admin endpoints returns `403 Forbidden`.
 > To promote a user to ADMIN: `UPDATE users SET role = 'ROLE_ADMIN' WHERE email = 'user@example.com';`
+
+---
+
+### Sharing endpoints (protected)
+
+**Share a document with another user**
+```bash
+curl -s -X POST http://localhost:8080/api/documents/{id}/share \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"recipientEmail":"other@example.com"}'
+```
+Response: `201 Created`
+
+> Returns `400` if sharing with yourself or the document is already shared with that user.
+> Returns `403` if you are not the document owner.
+
+**List documents shared with me**
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/documents/shared-with-me
+```
+Response: `200 OK` — array of document metadata shared with the logged-in user
+
+**Revoke a share**
+```bash
+curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+  -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/api/documents/{id}/share/{recipientId}
+```
+Response: `204 No Content`
+
+> Only the document owner can revoke. `{recipientId}` is the user ID of the person the document was shared with.
