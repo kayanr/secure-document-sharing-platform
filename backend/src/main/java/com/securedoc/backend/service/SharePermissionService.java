@@ -1,6 +1,7 @@
 package com.securedoc.backend.service;
 
 import com.securedoc.backend.dto.DocumentDTO;
+import com.securedoc.backend.dto.ShareInfoDTO;
 import com.securedoc.backend.model.Document;
 import com.securedoc.backend.model.SharePermission;
 import com.securedoc.backend.model.User;
@@ -55,6 +56,19 @@ public class SharePermissionService {
         return sharePermissionRepository.findBySharedWith(user)
                 .stream()
                 .map(p -> toDTO(p.getDocument()))
+                .toList();
+    }
+
+    // List all users a document has been shared with — only the owner can see this
+    public List<ShareInfoDTO> listShares(Long documentId, String ownerEmail) {
+        User owner = getUser(ownerEmail);
+        Document document = getOwnedDocument(documentId, owner);
+        return sharePermissionRepository.findByDocument(document)
+                .stream()
+                .map(p -> new ShareInfoDTO(
+                        p.getSharedWith().getId(),
+                        p.getSharedWith().getEmail(),
+                        p.getSharedAt()))
                 .toList();
     }
 
