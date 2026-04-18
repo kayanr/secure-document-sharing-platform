@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSharedWithMe } from '../services/shareService';
+import { downloadDocument } from '../services/documentService';
 import { useAuth } from '../context/AuthContext';
 
 function SharedWithMePage() {
@@ -64,6 +65,12 @@ function SharedWithMePage() {
                 {new Date(doc.uploadedAt).toLocaleDateString()}
               </p>
             </div>
+            <button
+              onClick={() => downloadDocument(doc.id, doc.originalFilename)}
+              style={styles.downloadButton}
+            >
+              Download
+            </button>
           </div>
         ))}
       </div>
@@ -138,6 +145,16 @@ const styles = {
   empty: {
     color: '#888',
     marginTop: '1rem',
+  },
+  downloadButton: {
+    padding: '0.4rem 0.9rem',
+    backgroundColor: '#2563eb',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    whiteSpace: 'nowrap',
   },
 };
 

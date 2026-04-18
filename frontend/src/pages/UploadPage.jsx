@@ -8,8 +8,19 @@ function UploadPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const ALLOWED_TYPES = ['application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain', 'image/jpeg', 'image/png'];
+
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selected = e.target.files[0];
+    if (selected && !ALLOWED_TYPES.includes(selected.type)) {
+      setError('File type not allowed. Accepted types: PDF, DOCX, TXT, JPG, PNG');
+      setFile(null);
+      e.target.value = '';
+      return;
+    }
+    setFile(selected);
     setError('');
   };
 
@@ -47,6 +58,7 @@ function UploadPage() {
             <p style={styles.dropzoneText}>Select a file to upload</p>
             <input
               type="file"
+              accept=".pdf,.docx,.txt,.jpg,.jpeg,.png"
               onChange={handleFileChange}
               style={styles.fileInput}
             />
