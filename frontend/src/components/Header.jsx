@@ -10,6 +10,9 @@ function Header({ title = 'SecureDoc', dark = false, children }) {
 
   const titleStyle = {
     margin: 0,
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    letterSpacing: '0',
     color: dark ? '#fff' : '#111',
   };
 

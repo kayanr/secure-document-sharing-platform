@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDocuments, deleteDocument } from '../services/documentService';
+import { getDocuments, deleteDocument, downloadDocument } from '../services/documentService';
 import { shareDocument, getShares, revokeShare } from '../services/shareService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
@@ -15,6 +15,7 @@ function DocumentsPage() {
 
   // Share modal state
   const [shareDocId, setShareDocId] = useState(null);
+  const [shareDocFilename, setShareDocFilename] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [shareError, setShareError] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
@@ -25,6 +26,8 @@ function DocumentsPage() {
 
   // Delete modal state
   const [deleteDoc, setDeleteDoc] = useState(null);
+  const deleteModalRef = useRef(null);
+  const deleteTriggerRef = useRef(null);
 
   const { logout, currentUserEmail } = useAuth();
   const navigate = useNavigate();
@@ -45,10 +48,12 @@ function DocumentsPage() {
   };
 
   const handleDelete = (doc) => {
+    deleteTriggerRef.current = document.activeElement;
     setDeleteDoc(doc);
   };
 
   const confirmDelete = async () => {
+    deleteTriggerRef.current = null;
     try {
       await deleteDocument(deleteDoc.id);
       setDocuments((prev) => prev.filter((doc) => doc.id !== deleteDoc.id));
@@ -59,8 +64,42 @@ function DocumentsPage() {
     }
   };
 
-  const openShareModal = async (docId) => {
+  // Focus trap + Escape key for delete modal
+  useEffect(() => {
+    if (!deleteDoc) return;
+    const modal = deleteModalRef.current;
+    if (!modal) return;
+
+    const focusable = modal.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') { setDeleteDoc(null); return; }
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [deleteDoc]);
+
+  // Return focus to trigger button when modal closes
+  useEffect(() => {
+    if (!deleteDoc && deleteTriggerRef.current) {
+      deleteTriggerRef.current.focus();
+      deleteTriggerRef.current = null;
+    }
+  }, [deleteDoc]);
+
+  const openShareModal = async (docId, filename) => {
     setShareDocId(docId);
+    setShareDocFilename(filename);
     setRecipientEmail('');
     setShareError('');
     setRevokeError('');
@@ -78,6 +117,7 @@ function DocumentsPage() {
 
   const closeShareModal = () => {
     setShareDocId(null);
+    setShareDocFilename('');
     setRecipientEmail('');
     setShareError('');
     setShares([]);
@@ -121,16 +161,21 @@ function DocumentsPage() {
         <button onClick={() => navigate('/shared-with-me')} style={styles.navButton}>
           Shared With Me
         </button>
-        <button onClick={() => navigate('/documents/upload')} style={styles.uploadButton}>
-          + Upload Document
-        </button>
         <button onClick={handleLogout} style={styles.logoutButton}>
           Logout
         </button>
       </Header>
 
       <div style={styles.content}>
-        <h2>My Documents</h2>
+        <div style={styles.pageHeader}>
+          <div>
+            <h2 style={styles.pageTitle}>My Documents</h2>
+            <p style={styles.pageSubtitle}>Manage your uploads and sharing access.</p>
+          </div>
+          <button onClick={() => navigate('/documents/upload')} style={styles.uploadButton}>
+            + Upload Document
+          </button>
+        </div>
 
         {loading && <p>Loading...</p>}
         {error && <p style={styles.error}>{error}</p>}
@@ -144,7 +189,7 @@ function DocumentsPage() {
               <line x1="9" y1="15" x2="15" y2="15" />
             </svg>
             <p style={styles.emptyText}>No documents yet</p>
-            <p style={styles.emptySubtext}>Upload your first document to get started</p>
+            <p style={styles.emptySubtext}>Upload your first document to start sharing securely</p>
             <button
               onClick={() => navigate('/documents/upload')}
               style={styles.emptyButton}
@@ -159,7 +204,13 @@ function DocumentsPage() {
             <div style={styles.cardLeft}>
               <FileIcon filename={doc.originalFilename} />
               <div>
-                <p style={styles.filename}>{doc.originalFilename}</p>
+                <div style={styles.filenameRow}>
+                  <p style={styles.filename}>{doc.originalFilename}</p>
+                  {doc.shareCount > 0
+                    ? <span style={styles.badgeShared}>Shared with {doc.shareCount}</span>
+                    : <span style={styles.badgePrivate}>Private</span>
+                  }
+                </div>
                 <p style={styles.meta}>
                   {(doc.fileSize / 1024).toFixed(1)} KB &nbsp;•&nbsp;
                   {new Date(doc.uploadedAt).toLocaleDateString()}
@@ -168,7 +219,13 @@ function DocumentsPage() {
             </div>
             <div style={styles.cardActions}>
               <button
-                onClick={() => openShareModal(doc.id)}
+                onClick={() => downloadDocument(doc.id, doc.originalFilename)}
+                style={styles.downloadButton}
+              >
+                Download
+              </button>
+              <button
+                onClick={() => openShareModal(doc.id, doc.originalFilename)}
                 style={styles.shareButton}
               >
                 Share
@@ -187,10 +244,17 @@ function DocumentsPage() {
       {/* Delete Confirmation Modal */}
       {deleteDoc && (
         <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h3 style={styles.modalTitle}>Delete Document</h3>
+          <div
+            style={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            ref={deleteModalRef}
+          >
+            <h3 id="delete-modal-title" style={styles.modalTitle}>Delete Document</h3>
             <p style={styles.deleteMessage}>
-              Are you sure you want to delete <strong>{deleteDoc.originalFilename}</strong>? This cannot be undone.
+              Are you sure you want to delete <strong>{deleteDoc.originalFilename}</strong>?
+              This permanently removes the document and revokes access for anyone it was shared with.
             </p>
             <div style={styles.modalActions}>
               <button
@@ -216,13 +280,14 @@ function DocumentsPage() {
       {shareDocId && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <h3 style={styles.modalTitle}>Share Document</h3>
+            <h3 style={styles.modalTitle}>Share — {shareDocFilename}</h3>
+            <p style={styles.modalHelperText}>Manage who can download this file.</p>
 
             {/* Current recipients */}
             {sharesLoading && <p style={styles.modalMeta}>Loading...</p>}
             {!sharesLoading && shares.length > 0 && (
               <div style={styles.sharesList}>
-                <p style={styles.sharesLabel}>Shared with</p>
+                <p style={styles.sharesLabel}>People with access</p>
                 {shares.map((s) => (
                   <div key={s.userId} style={styles.shareRow}>
                     <span style={styles.shareEmail}>{s.email}</span>
@@ -239,6 +304,7 @@ function DocumentsPage() {
             )}
 
             <form onSubmit={handleShare}>
+              <p style={styles.sharesLabel}>Add someone</p>
               <input
                 type="email"
                 placeholder="Recipient email address"
@@ -305,9 +371,24 @@ const styles = {
     fontSize: '0.9rem',
   },
   content: {
-    maxWidth: '700px',
+    maxWidth: '900px',
     margin: '2rem auto',
-    padding: '0 1rem',
+    padding: '0 2rem',
+  },
+  pageHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '1.5rem',
+  },
+  pageTitle: {
+    margin: 0,
+    textAlign: 'left',
+  },
+  pageSubtitle: {
+    margin: '0.25rem 0 0',
+    fontSize: '0.875rem',
+    color: '#6b7280',
   },
   card: {
     display: 'flex',
@@ -324,6 +405,30 @@ const styles = {
     alignItems: 'center',
     gap: '0.75rem',
   },
+  filenameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+  },
+  badgePrivate: {
+    fontSize: '0.7rem',
+    fontWeight: '600',
+    padding: '0.15rem 0.5rem',
+    borderRadius: '999px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    whiteSpace: 'nowrap',
+  },
+  badgeShared: {
+    fontSize: '0.7rem',
+    fontWeight: '600',
+    padding: '0.15rem 0.5rem',
+    borderRadius: '999px',
+    backgroundColor: '#eff6ff',
+    color: '#1d4ed8',
+    whiteSpace: 'nowrap',
+  },
   filename: {
     margin: 0,
     fontWeight: '500',
@@ -336,6 +441,15 @@ const styles = {
   cardActions: {
     display: 'flex',
     gap: '0.5rem',
+  },
+  downloadButton: {
+    padding: '0.4rem 0.9rem',
+    backgroundColor: 'transparent',
+    color: '#374151',
+    border: '1px solid #d1d5db',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
   },
   shareButton: {
     padding: '0.4rem 0.9rem',
@@ -405,7 +519,14 @@ const styles = {
     boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
   },
   modalTitle: {
+    margin: '0 0 0.25rem',
+    fontSize: '1rem',
+    wordBreak: 'break-word',
+  },
+  modalHelperText: {
     margin: '0 0 1.25rem',
+    fontSize: '0.8rem',
+    color: '#6b7280',
   },
   input: {
     width: '100%',
@@ -444,13 +565,13 @@ const styles = {
     fontSize: '0.9rem',
   },
   sharesList: {
-    marginBottom: '1.25rem',
+    marginBottom: '1rem',
     borderBottom: '1px solid #e5e7eb',
-    paddingBottom: '1rem',
+    paddingBottom: '0.75rem',
   },
   sharesLabel: {
-    margin: '0 0 0.5rem',
-    fontSize: '0.8rem',
+    margin: '0 0 0.4rem',
+    fontSize: '0.75rem',
     fontWeight: '600',
     color: '#6b7280',
     textTransform: 'uppercase',
@@ -460,7 +581,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0.35rem 0',
+    padding: '0.25rem 0',
   },
   shareEmail: {
     fontSize: '0.9rem',

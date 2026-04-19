@@ -10,15 +10,17 @@ public class DocumentDTO {
     private Long fileSize;
     private LocalDateTime uploadedAt;
     private String ownerEmail;
+    private long shareCount;
 
     public DocumentDTO(Long id, String originalFilename, String storedFilename,
-                       Long fileSize, LocalDateTime uploadedAt, String ownerEmail) {
+                       Long fileSize, LocalDateTime uploadedAt, String ownerEmail, long shareCount) {
         this.id = id;
         this.originalFilename = originalFilename;
         this.storedFilename = storedFilename;
         this.fileSize = fileSize;
         this.uploadedAt = uploadedAt;
         this.ownerEmail = ownerEmail;
+        this.shareCount = shareCount;
     }
 
     public Long getId() { return id; }
@@ -27,4 +29,5 @@ public class DocumentDTO {
     public Long getFileSize() { return fileSize; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public String getOwnerEmail() { return ownerEmail; }
+    public long getShareCount() { return shareCount; }
 }

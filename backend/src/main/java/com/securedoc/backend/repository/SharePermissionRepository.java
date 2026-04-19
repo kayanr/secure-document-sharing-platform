@@ -20,4 +20,7 @@ public interface SharePermissionRepository extends JpaRepository<SharePermission
 
     // Used by revoke — find the exact share record to delete
     Optional<SharePermission> findByDocumentAndSharedWith(Document document, User sharedWith);
+
+    // Used by DocumentDTO to show share count on document cards
+    long countByDocument(Document document);
 }

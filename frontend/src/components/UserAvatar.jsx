@@ -4,6 +4,12 @@ function UserAvatar({ email, dark = false }) {
   const parts = email.split('@')[0].split(/[._-]/);
   const initials = parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('');
 
+  const wrapper = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  };
+
   const avatar = {
     width: '32px',
     height: '32px',
@@ -17,11 +23,21 @@ function UserAvatar({ email, dark = false }) {
     fontWeight: '600',
     flexShrink: 0,
     cursor: 'default',
+    border: 'none',
+    padding: 0,
   };
 
   return (
-    <div style={avatar} title={email}>
-      {initials}
+    <div style={wrapper}>
+      <button
+        style={avatar}
+        title={email}
+        aria-label={`Signed in as ${email}`}
+        tabIndex={0}
+      >
+        {initials}
+      </button>
+      <span className="avatar-email">{email}</span>
     </div>
   );
 }

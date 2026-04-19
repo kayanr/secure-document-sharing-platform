@@ -47,7 +47,12 @@ function SharedWithMePage() {
       </Header>
 
       <div style={styles.content}>
-        <h2>Shared With Me</h2>
+        <div style={styles.pageHeader}>
+          <div>
+            <h2 style={styles.pageTitle}>Shared With Me</h2>
+            <p style={styles.pageSubtitle}>Documents other users have shared with you.</p>
+          </div>
+        </div>
 
         {loading && <p>Loading...</p>}
         {error && <p style={styles.error}>{error}</p>}
@@ -105,9 +110,21 @@ const styles = {
     fontSize: '0.9rem',
   },
   content: {
-    maxWidth: '700px',
+    maxWidth: '900px',
     margin: '2rem auto',
-    padding: '0 1rem',
+    padding: '0 2rem',
+  },
+  pageHeader: {
+    marginBottom: '1.5rem',
+  },
+  pageTitle: {
+    margin: 0,
+    textAlign: 'left',
+  },
+  pageSubtitle: {
+    margin: '0.25rem 0 0',
+    fontSize: '0.875rem',
+    color: '#6b7280',
   },
   card: {
     display: 'flex',

@@ -9,7 +9,7 @@ function Toast({ message, onClose }) {
   if (!message) return null;
 
   return (
-    <div style={styles.toast}>
+    <div style={styles.toast} role="status" aria-live="polite">
       {message}
     </div>
   );

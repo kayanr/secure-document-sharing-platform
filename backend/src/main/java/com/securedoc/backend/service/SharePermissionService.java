@@ -112,7 +112,8 @@ public class SharePermissionService {
                 document.getFilePath(),
                 document.getFileSize(),
                 document.getUploadedAt(),
-                document.getOwner().getEmail()
+                document.getOwner().getEmail(),
+                0
         );
     }
 }

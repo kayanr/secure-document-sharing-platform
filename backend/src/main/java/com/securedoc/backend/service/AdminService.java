@@ -44,7 +44,8 @@ public class AdminService {
                 document.getFilePath(),
                 document.getFileSize(),
                 document.getUploadedAt(),
-                document.getOwner().getEmail()
+                document.getOwner().getEmail(),
+                0
         );
     }
 }

@@ -58,7 +58,6 @@ body {
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -113,4 +112,16 @@ code {
 button:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+
+.avatar-email {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .avatar-email {
+    display: inline;
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
 }

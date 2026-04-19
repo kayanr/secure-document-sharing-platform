@@ -56,7 +56,12 @@ function LoginPage() {
             />
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && (
+            <div style={styles.errorAlert} role="alert">
+              <p style={styles.errorTitle}>Invalid credentials</p>
+              <p style={styles.errorBody}>Check your email and password, then try again.</p>
+            </div>
+          )}
 
           <button type="submit" disabled={loading} style={styles.button}>
             {loading ? 'Signing in...' : 'Sign In'}
@@ -113,9 +118,21 @@ const styles = {
     border: '1px solid #ccc',
     fontSize: '1rem',
   },
-  error: {
-    color: '#dc2626',
+  errorAlert: {
+    backgroundColor: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: '4px',
+    padding: '0.75rem 1rem',
+  },
+  errorTitle: {
+    color: '#991b1b',
+    fontWeight: '600',
     fontSize: '0.875rem',
+    margin: '0 0 0.25rem',
+  },
+  errorBody: {
+    color: '#b91c1c',
+    fontSize: '0.8rem',
     margin: 0,
   },
   button: {
